@@ -2,11 +2,10 @@ from src.core.database import Base
 from sqlalchemy import JSON, Column,String,Integer,DateTime,Boolean,UniqueConstraint
 from sqlalchemy.sql import func#it will use to indicate current time 
 from sqlalchemy.dialects.postgresql import ARRAY
-
+from sqlalchemy.orm import relationship
 class CustomUser(Base):
     __tablename__="customuser"
     id=Column(Integer,primary_key=True)
-    name=Column(String,nullable=False)
     email=Column(String,unique=True,nullable=False)
     mobile_number=Column(String(32),nullable=False,unique=True)
     password=Column(String,nullable=True) 
@@ -16,3 +15,4 @@ class CustomUser(Base):
     modified_by=Column(String,nullable=True)
     is_active=Column(Boolean,default=True)
     __table_args__=(UniqueConstraint("email","mobile_number",name="unique_users")),
+    profile=relationship("UserPersonalProfile",back_populates="users")

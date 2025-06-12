@@ -15,22 +15,23 @@ from src.models.rolemaster import RoleMaster
 from src.models.rolemapping import RoleMapping
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
 
 
-logger.info(f"Initial sys.path: {sys.path}")
-logger.info(f"__file__: {__file__}")
+# logger.info(f"Initial sys.path: {sys.path}")
+# logger.info(f"__file__: {__file__}")
 config = context.config
 
 
-database_url = os.getenv("DATABASE_URL")
-if database_url:
+# database_url = os.getenv("DATABASE_URL")
+# if database_url:
 
-    logger.info(f"Alembic using DATABASE_URL from environment: {database_url}")
-    config.set_main_option("sqlalchemy.url", database_url)
-else:
-    logger.info("Alembic using DATABASE_URL from alembic.ini")
+#     # logger.info(f"Alembic using DATABASE_URL from environment: {database_url}")
+#     config.set_main_option("sqlalchemy.url", database_url)
+# else:
+#     print('Alembic using DATABASE_URL from alembic.ini')
+#     # logger.info("Alembic using DATABASE_URL from alembic.ini")
 
 
 

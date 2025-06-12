@@ -20,4 +20,4 @@ class UserPersonalProfile(Base):
     modified_by=Column(String,nullable=True) 
     is_active=Column(Boolean,default=True)   
 
-    users=relationship("CustomUser",back_populates="profiles")
+    users=relationship("CustomUser",back_populates="profile")

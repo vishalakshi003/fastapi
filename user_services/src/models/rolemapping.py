@@ -8,5 +8,5 @@ class RoleMapping(Base):
     user_id=Column(Integer,ForeignKey("customuser.id"))
     role_id=Column(Integer,ForeignKey("rolemaster.id"))
 
-    users=relationship("CustomUser",back_populates="user")
-    roles=relationship("RoleMaster",back_populates="role")
+    users=relationship("CustomUser")
+    roles=relationship("RoleMaster")

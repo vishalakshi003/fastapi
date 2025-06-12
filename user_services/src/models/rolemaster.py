@@ -10,8 +10,8 @@ class RoleMaster(Base):
     name=Column(String,nullable=False,unique=True)
     desc=Column(String,nullable=True)
     created_at=Column(DateTime,server_default=func.now(),nullable=False)
-    created_by=Column(String,nullable=False)
+    # created_by=Column(String,nullable=False)
     modified_at=Column(DateTime,server_default=func.now(),onupdate=func.now(),nullable=False)
-    modified_by=Column(String,nullable=True) 
+    # modified_by=Column(String,nullable=True) 
     is_active=Column(Boolean,default=True)   
 
