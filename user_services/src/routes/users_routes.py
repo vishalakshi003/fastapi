@@ -1,17 +1,15 @@
 from fastapi.security import OAuth2PasswordRequestForm
 from typing_extensions import Annotated
-from fastapi import APIRouter,Depends, HTTPException,Form
+from fastapi import APIRouter,Depends, HTTPException
 from sqlalchemy import select
 
 from src.dependency import CurrentUserDeps, SessionDeps
-from..schemas.user_schema import CreateUser, LoginRequest,UserResponse
-from sqlalchemy.ext.asyncio import AsyncSession
-from ..core.database import async_get_db
+from..schemas.user_schema import CreateUser, LoginRequest
 from ..models.customuser import CustomUser
 from ..models.user_profile import UserPersonalProfile
 from ..models.rolemaster import RoleMaster
 from ..models.rolemapping import RoleMapping
-from src.utils import fetch_current_user, generate_access_token, password_context
+from src.utils import generate_access_token, password_context
 user_router=APIRouter()
 
 @user_router.post('/create/user')

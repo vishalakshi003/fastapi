@@ -1,6 +1,6 @@
 from fastapi import APIRouter,Depends
 from sqlalchemy.future import select
-from src.schemas.user_schema import RoleResponse,CreateRole
+from src.schemas.user_schema import CreateRole
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import async_get_db
 from src.models.rolemaster import RoleMaster
