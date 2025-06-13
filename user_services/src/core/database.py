@@ -5,16 +5,16 @@ from sqlalchemy.ext.asyncio import create_async_engine,AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
 
 Base=declarative_base()
-# sync_engine=create_engine("postgresql://postgres:vishali@localhost:5432/fastapi_demo")
+sync_engine=create_engine("postgresql://postgres:vishali@localhost:5432/fastapi_demo")
 
-# Sync_Session=sessionmaker(autocommit=False,autoflush=False,bind=sync_engine)
+Sync_Session=sessionmaker(autocommit=False,autoflush=False,bind=sync_engine)
 
-# def get_session():
-#     session=Sync_Session()
-#     try:
-#         yield session
-#     finally:
-#         session.close()
+def get_session():
+    session=Sync_Session()
+    try:
+        yield session
+    finally:
+        session.close()
 
 async_engine=create_async_engine(Config.DATABASE_URL)
 

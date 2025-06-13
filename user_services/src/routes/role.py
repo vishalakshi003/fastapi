@@ -21,4 +21,5 @@ async def get_role(id:Optional[int]=None,db:AsyncSession=Depends(async_get_db)):
     else:
         results=await db.execute(select(RoleMaster))
     roles = results.scalars().all()
+
     return roles

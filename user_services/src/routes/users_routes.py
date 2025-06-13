@@ -3,7 +3,7 @@ from typing_extensions import Annotated
 from fastapi import APIRouter,Depends, HTTPException
 from sqlalchemy import select
 
-from src.dependency import CurrentUserDeps, SessionDeps
+from src.dependency import CurrentUserDeps, OuthUserDeps, SessionDeps
 from..schemas.user_schema import CreateUser, LoginRequest
 from ..models.customuser import CustomUser
 from ..models.user_profile import UserPersonalProfile
@@ -75,9 +75,9 @@ async def login_form(request_form: Annotated[OAuth2PasswordRequestForm,Depends()
                 },})
     return token
 @user_router.post("/dashboad")
-async def dashboard(current_user:CurrentUserDeps):
-    print(current_user)
-    return {"message": f"hello {current_user['user']['email']}!!!!"}
+async def dashboard(current_user:OuthUserDeps):
+    print(current_user,type(current_user))
+    return {"message": f"hello {current_user}!!!!"}
 
 
 
