@@ -1,6 +1,12 @@
 from fastapi import FastAPI
-from src.routes.users_routes import user_router
-from src.routes.role import role_router
+from strawberry.fastapi import GraphQLRouter
+from src.api.graphql.schemas import schema
+from src.dependency import get_context
+# from src.routes.users_routes import user_router
+# from src.routes.role import role_router
+
 app=FastAPI()
-app.include_router(user_router,prefix="/users/api",tags=["users"])
-app.include_router(role_router,prefix="/users/api",tags=["users"])
+users=GraphQLRouter(schema,context_getter=get_context)
+app.include_router(users,prefix='/graphql')
+# app.include_router(user_router,prefix="/users/api",tags=["users"])
+# app.include_router(role_router,prefix="/users/api",tags=["users"])

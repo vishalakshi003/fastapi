@@ -1,18 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional,List,Dict,Any
 class UserBase(BaseModel):
     firstname:str
     middlename:Optional[str]=None
     lastname:str
-    email:str
+    email:EmailStr
     mobile_number:str
-    id_proof: List[Dict[str, Any]]
+    id_proof: Optional[List[Dict[str, Any]]]=None
     profilephoto: Optional[Dict[str, Any]] = None
     hobbies: Optional[List[str]] = []
     address_info:Optional[Dict[str, Any]]=None
 
 class CreateUser(UserBase):
     password:str
+    password1:str
     # created_by:int
     # modified_by:int
     roles: List[str] 
