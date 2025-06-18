@@ -76,3 +76,12 @@ class SuccessResponse:
     message: str
     status_code: int
 
+@strawberry.input
+class LoginReq:
+    mobile_no:str
+    password:str
+@strawberry.type
+class TokenRes:
+    status:SuccessResponse
+    token:str
+

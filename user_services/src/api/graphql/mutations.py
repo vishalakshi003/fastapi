@@ -1,7 +1,7 @@
 import strawberry
 
 from src.schemas.user_schema import CreateUser
-from .types import Create_role,Get_role,Create_user,ResponseMessage,Create_Lang,GetLang
+from .types import Create_role,Get_role,Create_user, LoginReq,ResponseMessage,Create_Lang,GetLang, SuccessResponse, TokenRes
 from ...models.rolemaster import RoleMaster
 from ...models.customuser import CustomUser
 from ...models.rolemapping import RoleMapping
@@ -10,7 +10,7 @@ from ...models.language import Language,language_users
 from ...dependency import SessionDeps
 from sqlalchemy import insert, select
 from fastapi import HTTPException,status
-from ...utils import password_context
+from ...utils import generate_access_token, password_context
 from strawberry.types import Info
 from sqlalchemy.ext.asyncio import AsyncSession
 from strawberry.exceptions import GraphQLError
@@ -82,4 +82,27 @@ class Mutations():
         await db.commit()
         await db.refresh(lang)
         return lang
-    
+    @strawberry.mutation
+    async def Loginapi(self,info:Info,request:LoginReq)->TokenRes:
+        try:
+            db:AsyncSession=info.context["db"]
+            results=await db.execute(select(CustomUser).where(CustomUser.mobile_number==request.mobile_no))
+            users=results.scalar()
+            if not users or not password_context.verify(request.password,users.password):
+                raise GraphQLError('mobile no or password is invalid')
+            token = generate_access_token(data={
+            "user":{
+                    "id":users.id,
+                    "email":users.email,
+                },})
+            return TokenRes(
+                status=SuccessResponse(
+                    status="success",
+                    message="Login successful",
+                    status_code=200
+                ),token= token)
+        except GraphQLError as gql_error:
+            raise gql_error  
+        except Exception as e:
+            print('error',str(e))
+            raise GraphQLError(f"Something went wrong :{str(e)}")
