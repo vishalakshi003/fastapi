@@ -1,13 +1,14 @@
 import strawberry
 
 from src.schemas.user_schema import CreateUser
-from .types import Create_role,Get_role,Create_user,ResponseMessage
+from .types import Create_role,Get_role,Create_user,ResponseMessage,Create_Lang,GetLang
 from ...models.rolemaster import RoleMaster
 from ...models.customuser import CustomUser
 from ...models.rolemapping import RoleMapping
 from ... models.user_profile import UserPersonalProfile
+from ...models.language import Language,language_users
 from ...dependency import SessionDeps
-from sqlalchemy import select
+from sqlalchemy import insert, select
 from fastapi import HTTPException,status
 from ...utils import password_context
 from strawberry.types import Info
@@ -15,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from strawberry.exceptions import GraphQLError
 @strawberry.type
 class Mutations():
-    @strawberry.field
+    @strawberry.mutation
     async def Createrole(self,info:Info,data:Create_role)->Get_role:
         db: AsyncSession = info.context["db"]
         results=await db.execute(select(RoleMaster).where(RoleMaster.name==data.name))
@@ -28,7 +29,7 @@ class Mutations():
         await db.refresh(roles)
         return roles
     
-    @strawberry.field
+    @strawberry.mutation
     async def Createuser(self,info:Info,data:Create_user)->ResponseMessage:
 
         try:
@@ -58,14 +59,27 @@ class Mutations():
                 roles=role_res.scalars()
                 for role in roles:
                     db.add(RoleMapping(user_id=users.id,role_id=role.id))
+
+                lang_res=await db.execute(select(Language).where(Language.name.in_(validated.language)))
+                language=lang_res.scalars()
+                for lang in language:
+                    await db.execute(insert(language_users).values(user_id=users.id,language_id=lang.id))
                 await db.refresh(users)
                 await db.refresh(profile)
                 return ResponseMessage(status='success',message='user created successfully')     
         except GraphQLError as gql_error:
             #  Preserve the actual GraphQL error
-            await db.rollback()
             raise gql_error  
         except Exception as e:
             await db.rollback()
             raise GraphQLError(f"Something went wrong :{str(e)}")
 
+    @strawberry.mutation
+    async def CreateLanguage(self,info:Info,data:Create_Lang)->GetLang:
+        db:AsyncSession=info.context["db"]
+        lang=Language(name=data.name,created_by=str(1))
+        db.add(lang)
+        await db.commit()
+        await db.refresh(lang)
+        return lang
+    

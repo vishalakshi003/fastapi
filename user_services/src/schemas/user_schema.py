@@ -10,13 +10,14 @@ class UserBase(BaseModel):
     profilephoto: Optional[Dict[str, Any]] = None
     hobbies: Optional[List[str]] = []
     address_info:Optional[Dict[str, Any]]=None
+    language:Optional[List[str]]=None
 
 class CreateUser(UserBase):
     password:str
     password1:str
     # created_by:int
     # modified_by:int
-    roles: List[str] 
+    roles:Optional[List[str] ]=None
 
 class UserResponse(UserBase):
     id:int
@@ -36,3 +37,6 @@ class RoleResponse(RoleBase):
 class LoginRequest(BaseModel):
     mobilenumber:str
     password:str
+
+class CreateLanguage(BaseModel):
+    name:str
