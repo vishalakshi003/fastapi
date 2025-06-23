@@ -3,7 +3,7 @@ from .config import Config
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine,AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
-
+from contextlib import asynccontextmanager
 Base=declarative_base()
 sync_engine=create_engine("postgresql://postgres:vishali@localhost:5432/fastapi_demo")
 

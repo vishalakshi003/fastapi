@@ -1,6 +1,6 @@
 import strawberry
 
-from src.schemas.user_schema import CreateUser
+from src.schemas.user_schema import *
 from .types import Create_role,Get_role,Create_user, LoginReq,ResponseMessage,Create_Lang,GetLang, SuccessResponse, TokenRes
 from ...models.rolemaster import RoleMaster
 from ...models.customuser import CustomUser
@@ -19,11 +19,12 @@ class Mutations():
     @strawberry.mutation
     async def Createrole(self,info:Info,data:Create_role)->Get_role:
         db: AsyncSession = info.context["db"]
-        results=await db.execute(select(RoleMaster).where(RoleMaster.name==data.name))
+        validated =CreateRole(**data.__dict__)
+        results=await db.execute(select(RoleMaster).where(RoleMaster.name==validated.name))
         role_exists=results.scalar()
         if role_exists:
             raise HTTPException(status_code=400,detail='role already exists')
-        roles=RoleMaster(name=data.name,desc=data.desc)
+        roles=RoleMaster(name=validated.name,desc=validated.desc)
         db.add(roles)
         await db.commit()
         await db.refresh(roles)
@@ -59,11 +60,11 @@ class Mutations():
                 roles=role_res.scalars()
                 for role in roles:
                     db.add(RoleMapping(user_id=users.id,role_id=role.id))
-
-                lang_res=await db.execute(select(Language).where(Language.name.in_(validated.language)))
-                language=lang_res.scalars()
-                for lang in language:
-                    await db.execute(insert(language_users).values(user_id=users.id,language_id=lang.id))
+                if data.language:
+                    lang_res=await db.execute(select(Language).where(Language.name.in_(validated.language)))
+                    language=lang_res.scalars()
+                    for lang in language:
+                        await db.execute(insert(language_users).values(user_id=users.id,language_id=lang.id))
                 await db.refresh(users)
                 await db.refresh(profile)
                 return ResponseMessage(status='success',message='user created successfully')     
@@ -86,7 +87,7 @@ class Mutations():
     async def Loginapi(self,info:Info,request:LoginReq)->TokenRes:
         try:
             db:AsyncSession=info.context["db"]
-            results=await db.execute(select(CustomUser).where(CustomUser.mobile_number==request.mobile_no))
+            results=await db.execute(select(CustomUser).filter(CustomUser.mobile_number==request.mobile_no))
             users=results.scalar()
             if not users or not password_context.verify(request.password,users.password):
                 raise GraphQLError('mobile no or password is invalid')

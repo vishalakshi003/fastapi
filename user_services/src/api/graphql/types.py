@@ -1,8 +1,9 @@
 import strawberry
 from typing import List,Optional
 from pydantic import BaseModel
-from typing import Any
+from typing import Any,Dict
 import strawberry
+from strawberry.scalars import JSON
 @strawberry.scalar(description="The `JSON` scalar type represents arbitrary JSON values.")
 class JSON:
     @staticmethod

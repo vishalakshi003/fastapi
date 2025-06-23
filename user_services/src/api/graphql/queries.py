@@ -1,8 +1,9 @@
+from graphql import GraphQLError
 import strawberry
 from .types import Get_role,User_details,GetLang
 from typing import Optional
 from ...dependency import SessionDeps
-from sqlalchemy import select
+from sqlalchemy import select,desc,func
 from sqlalchemy.orm import selectinload
 from ...models.rolemaster import RoleMaster
 from ...models.customuser import CustomUser
@@ -20,7 +21,7 @@ class Query:
         if id:
             results=await db.execute(select(RoleMaster).where(RoleMaster.id==id))
         else:
-            results=await db .execute(select(RoleMaster))
+            results=await db .execute(select(RoleMaster).order_by(desc(RoleMaster.created_at)))
         roles=results.scalars().all()
         return roles
     
@@ -64,9 +65,13 @@ class Query:
         return user_data
 
     @strawberry.field
-    async def get_language(self,info:Info,id:Optional[int]=None)->List[GetLang]:
+    async def get_language(self,info:Info)->List[GetLang]:
         db:AsyncSession=info.context["db"]
-        if id:
+        payload=info.context["user"]
+        if not payload:
+            raise GraphQLError('unauthorized')
+        if payload:
+            id = payload["user"]["id"]
             data=await db.execute(select(Language).where((Language.id==id)&(Language.is_active == True)))
         else:
             data=await db.execute(select(Language).where(Language.is_active == True))

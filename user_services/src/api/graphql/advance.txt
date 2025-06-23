@@ -1,0 +1,204 @@
+EXAMPLE
+---------------------------------
+1. Fragments (Client-side only)
+-----------------------------------
+fragment RoleFields on GetRole {
+  id
+  name
+  desc
+}
+
+query {
+  getRoles {
+    ...RoleFields
+  }
+}
+
+==================================================================
+-------------------------------|
+pagination                     |
+limit is end eg :5             |
+offset is next eg: 10          |
+start = offset + 1 = 11        |
+end   = offset + limit = 15    |
+-------------------------------|
+---------------------------
+2. Arguments-->pass params
+----------------------------
+@strawberry.type
+class Query:
+    @strawberry.field
+    async def get_roles(
+        self,
+        info: Info,
+        id: Optional[int] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = 0
+    ) -> List[Get_role]:
+        db: AsyncSession = info.context["db"]
+
+        # Build the base query
+        query = select(RoleMaster)
+
+        # Apply filter if `id` is provided
+        if id:
+            query = query.where(RoleMaster.id == id)
+
+        # Apply pagination
+        if limit is not None:
+            query = query.limit(limit).offset(offset)
+
+        # Execute and fetch
+        result = await db.execute(query)
+        roles = result.scalars().all()
+        return roles
+
+
+
+query to get:
+query {
+  getRoles(limit: 5) {
+    id
+    name
+  }
+}
+
+query {
+  getRoles(limit: 5, offset: 5) {
+    id
+    name
+  }
+}
+=======================================================================================================================================
+
+-----------------------------------
+3. Aliases (Client-side only)
+-----------------------------------
+query {
+  adminRoles: getRoles(id: 2) {
+    id
+    name
+  }
+  
+  userRoles: getRoles(id: 6) {
+    id
+    name
+  }
+   managerRoles: getRoles(id: 3) {
+    id
+    name
+  }
+
+  allRoles: getRoles {
+    id
+    name
+  }
+}
+---------------------------------
+4. Object type
+-----------------------------------
+it is just schema of request and response
+
+=====================================================================
+---------------------------------
+5. Scalar type
+-----------------------------------
+=>  Built-in primitives as Int, Float, String, Boolean, ID
+
+You can define custom scalars too.--> eg : datetime(define manually), json(not need manually)
+
+=================================================================================================
+---------------------------------
+6. Enums – Predefined set of valid values
+-----------------------------------
+import enum
+
+@strawberry.enum
+class Role(enum.Enum):
+    ADMIN = "ADMIN"
+    USER = "USER"
+    GUEST = "GUEST"
+
+@strawberry.type
+class User:
+    id: int
+    name: str
+    role: Role
+======================================================================================
+---------------------------------
+7. Interfaces
+-----------------------------------
+=> create a common field in one class , we need to inheritance to use, not to rewrite
+========================================================================================
+
+---------------------------------
+8. Union
+----------------------------------
+-->SearchResult = strawberry.union("SearchResult", types=(Post, Comment))
+using this , it will search the word in post and comment
+=====================================================================================
+\\\\\\\
+------------
+Extra
+-------------
+\\\\\\\
+
+latest data:
+       @strawberry.type
+class Query:
+    @strawberry.field
+    async def get_roles(self,info:Info,id:Optional[int]=None,last:Optional[int]=None,start_count: Optional[int] = None,end_count: Optional[int] = None)-> List[Get_role]:
+        db: AsyncSession = info.context["db"]
+        if id:
+            results=await db.execute(select(RoleMaster).where(RoleMaster.id==id))
+        else:
+            results=await db .execute(select(RoleMaster).order_by(desc(RoleMaster.created_at)))
+        roles=results.scalars().all()
+        if last:
+            roles=roles[-last:]
+        return roles
+last:2--> return last 2 data
+if we to print data as  asc,desc--> using only the function of "asc(), desc()"
+
+------------------
+search by name
+------------------
+1.startwith
+=>  results=await db .execute(select(RoleMaster).where(RoleMaster.name.startswith(searchname)))
+2.i_exact--
+=>  results=await db .execute(select(RoleMaster).where(func.lower(RoleMaster.name)==searchname).order_by(desc(RoleMaster.created_at)))
+3.i_contains
+=>  results=await db .execute(select(RoleMaster).where(RoleMaster.name.ilike(f"%{searchname}%")) .order_by(desc(RoleMaster.created_at)))--> case insensitive
+=>  results=await db .execute(select(RoleMaster).where(RoleMaster.name.like(f"%{searchname}%")) .order_by(desc(RoleMaster.created_at)))--> case sensitive
+
+
+========================================================================================================================================================================================
+
+-------------------------
+Introspection ----> it will use for define schema 
+-------------------------
+=> using this Introspection -> postman,apolloclient is describe schema
+{
+  __schema {
+    types {
+      name
+      kind
+      description
+    }
+  }
+}
+
+{
+  __schema {
+    queryType {
+      name
+    }
+    mutationType {
+      name
+    }
+    types {
+      name
+      kind
+    }
+  }
+}
