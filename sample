@@ -1,1 +1,26 @@
-sample
+src/
+├── config/ Database connection, Session creation
+├── error/
+├── audit/-- audit logs
+├── entity/  
+├── models/ Models
+├── generated/ --- we need to generate normal graphql type, using this it will generate the strawberry type
+├── schema/ -- Payload -->graphql mutation/query
+├── resolvers/-- function call
+├── services/--- function implement
+├── utils/ --- function for generate token
+├── mappers/--
+├── app.py-- run fastapi
+├── main.py-- run port
+test/
+├── resolvers/
+├── services/
+├── utils/
+├── mappers/
+requirements.txt
+Dockerfile
+Jenkinsfile
+.gitignore
+.dockerignore
+.env
+.secrets.ini
