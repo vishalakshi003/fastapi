@@ -1,0 +1,12 @@
+federation_version: "=2.5.1"
+
+subgraphs:
+  user_services:
+    routing_url: http://localhost:8000/graphql
+    schema:
+      file: ../user_services/schema.graphql
+
+  asset_service:
+    routing_url: http://localhost:8001/graphql
+    schema:
+      file: ../asset_service/schema.graphql

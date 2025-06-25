@@ -1,0 +1,195 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.3", for: EXECUTION)
+{
+  query: Query
+  mutation: Mutation
+}
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+input CreateAllocated
+  @join__type(graph: ASSET_SERVICE)
+{
+  assetId: Int!
+  userId: Int!
+}
+
+input CreateAsset
+  @join__type(graph: ASSET_SERVICE)
+{
+  name: String!
+}
+
+input CreateLang
+  @join__type(graph: USER_SERVICES)
+{
+  name: String!
+}
+
+input CreateRole
+  @join__type(graph: USER_SERVICES)
+{
+  name: String!
+  desc: String!
+}
+
+input CreateUser
+  @join__type(graph: USER_SERVICES)
+{
+  firstname: String!
+  lastname: String!
+  email: String!
+  mobileNumber: String!
+  password: String!
+  password1: String!
+  profilephoto: JSON!
+  hobbies: JSON!
+  addressInfo: JSON!
+  language: [String!] = null
+  roles: [String!] = ["consumer"]
+}
+
+type GetAsset
+  @join__type(graph: ASSET_SERVICE)
+{
+  id: Int!
+  name: String!
+}
+
+type GetAssetAllocated
+  @join__type(graph: ASSET_SERVICE)
+{
+  id: Int!
+  assetId: GetAsset!
+  userId: User!
+  status: String!
+}
+
+type GetLang
+  @join__type(graph: USER_SERVICES)
+{
+  id: Int!
+  name: String!
+}
+
+type GetRole
+  @join__type(graph: USER_SERVICES)
+{
+  id: Int!
+  name: String!
+  desc: String!
+}
+
+scalar join__FieldSet
+
+enum join__Graph {
+  ASSET_SERVICE @join__graph(name: "asset_service", url: "http://localhost:8001/graphql")
+  USER_SERVICES @join__graph(name: "user_services", url: "http://localhost:8000/graphql")
+}
+
+"""The `JSON` scalar type represents arbitrary JSON values."""
+scalar JSON
+  @join__type(graph: USER_SERVICES)
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+input LoginReq
+  @join__type(graph: USER_SERVICES)
+{
+  mobileNo: String!
+  password: String!
+}
+
+type Mutation
+  @join__type(graph: ASSET_SERVICE)
+  @join__type(graph: USER_SERVICES)
+{
+  createAsset(data: CreateAsset!): GetAsset! @join__field(graph: ASSET_SERVICE)
+  createAssetallocated(data: CreateAllocated!): GetAssetAllocated! @join__field(graph: ASSET_SERVICE)
+  Createrole(data: CreateRole!): GetRole! @join__field(graph: USER_SERVICES)
+  Createuser(data: CreateUser!): ResponseMessage! @join__field(graph: USER_SERVICES)
+  CreateLanguage(data: CreateLang!): GetLang! @join__field(graph: USER_SERVICES)
+  Loginapi(request: LoginReq!): TokenRes! @join__field(graph: USER_SERVICES)
+}
+
+type Query
+  @join__type(graph: ASSET_SERVICE)
+  @join__type(graph: USER_SERVICES)
+{
+  getAsset(id: Int = null): [GetAsset!]! @join__field(graph: ASSET_SERVICE)
+  getAssetAllocation(id: Int = null): [GetAssetAllocated!]! @join__field(graph: ASSET_SERVICE)
+  getRoles(id: Int = null): [GetRole!]! @join__field(graph: USER_SERVICES)
+  getUserDetails(id: Int = null): [UserDetails!]! @join__field(graph: USER_SERVICES)
+  getLanguage: [GetLang!]! @join__field(graph: USER_SERVICES)
+}
+
+type ResponseMessage
+  @join__type(graph: USER_SERVICES)
+{
+  status: String!
+  message: String!
+}
+
+type SuccessResponse
+  @join__type(graph: USER_SERVICES)
+{
+  status: String!
+  message: String!
+  statusCode: Int!
+}
+
+type TokenRes
+  @join__type(graph: USER_SERVICES)
+{
+  status: SuccessResponse!
+  token: String!
+}
+
+type User
+  @join__type(graph: ASSET_SERVICE, key: "id")
+  @join__type(graph: USER_SERVICES, key: "id")
+{
+  id: ID!
+  email: String! @join__field(graph: USER_SERVICES)
+}
+
+type UserDetails
+  @join__type(graph: USER_SERVICES)
+{
+  userId: Int!
+  firstname: String!
+  lastname: String!
+  email: String!
+  mobileNumber: String!
+  idProof: JSON!
+  profilephoto: JSON!
+  hobbies: JSON!
+  addressInfo: JSON!
+  language: [GetLang!]
+  roles: String
+}

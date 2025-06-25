@@ -1,0 +1,104 @@
+schema {
+  query: Query
+  mutation: Mutations
+}
+
+input CreateLang {
+  name: String!
+}
+
+input CreateRole {
+  name: String!
+  desc: String!
+}
+
+input CreateUser {
+  firstname: String!
+  lastname: String!
+  email: String!
+  mobileNumber: String!
+  password: String!
+  password1: String!
+  profilephoto: JSON!
+  hobbies: JSON!
+  addressInfo: JSON!
+  language: [String!] = null
+  roles: [String!] = ["consumer"]
+}
+
+type GetLang {
+  id: Int!
+  name: String!
+}
+
+type GetRole {
+  id: Int!
+  name: String!
+  desc: String!
+}
+
+"""The `JSON` scalar type represents arbitrary JSON values."""
+scalar JSON
+
+input LoginReq {
+  mobileNo: String!
+  password: String!
+}
+
+type Mutations {
+  Createrole(data: CreateRole!): GetRole!
+  Createuser(data: CreateUser!): ResponseMessage!
+  CreateLanguage(data: CreateLang!): GetLang!
+  Loginapi(request: LoginReq!): TokenRes!
+}
+
+type Query {
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
+  getRoles(id: Int = null): [GetRole!]!
+  getUserDetails(id: Int = null): [UserDetails!]!
+  getLanguage: [GetLang!]!
+}
+
+type ResponseMessage {
+  status: String!
+  message: String!
+}
+
+type SuccessResponse {
+  status: String!
+  message: String!
+  statusCode: Int!
+}
+
+type TokenRes {
+  status: SuccessResponse!
+  token: String!
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  email: String!
+}
+
+type UserDetails {
+  userId: Int!
+  firstname: String!
+  lastname: String!
+  email: String!
+  mobileNumber: String!
+  idProof: JSON!
+  profilephoto: JSON!
+  hobbies: JSON!
+  addressInfo: JSON!
+  language: [GetLang!]
+  roles: String
+}
+
+scalar _Any
+
+union _Entity = User
+
+type _Service {
+  sdl: String!
+}

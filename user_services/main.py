@@ -8,5 +8,9 @@ from src.dependency import get_context
 app=FastAPI()
 users=GraphQLRouter(schema,context_getter=get_context)
 app.include_router(users,prefix='/graphql')
+
+
+# with open("schema.graphql", "w") as f:
+#     f.write(schema.as_str())
 # app.include_router(user_router,prefix="/users/api",tags=["users"])
 # app.include_router(role_router,prefix="/users/api",tags=["users"])

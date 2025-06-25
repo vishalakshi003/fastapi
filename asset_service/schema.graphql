@@ -1,0 +1,44 @@
+input CreateAllocated {
+  assetId: Int!
+  userId: Int!
+}
+
+input CreateAsset {
+  name: String!
+}
+
+type GetAsset {
+  id: Int!
+  name: String!
+}
+
+type GetAssetAllocated {
+  id: Int!
+  assetId: GetAsset!
+  userId: User!
+  status: String!
+}
+
+type Mutation {
+  createAsset(data: CreateAsset!): GetAsset!
+  createAssetallocated(data: CreateAllocated!): GetAssetAllocated!
+}
+
+type Query {
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
+  getAsset(id: Int = null): [GetAsset!]!
+  getAssetAllocation(id: Int = null): [GetAssetAllocated!]!
+}
+
+type User @key(fields: "id") {
+  id: ID!
+}
+
+scalar _Any
+
+union _Entity = User
+
+type _Service {
+  sdl: String!
+}

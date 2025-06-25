@@ -1,9 +1,14 @@
+from sqlalchemy import select
 import strawberry
 from typing import List,Optional
 from pydantic import BaseModel
 from typing import Any,Dict
 import strawberry
 from strawberry.scalars import JSON
+from strawberry.federation import type as fed_type
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.models.customuser import CustomUser
 @strawberry.scalar(description="The `JSON` scalar type represents arbitrary JSON values.")
 class JSON:
     @staticmethod
@@ -86,3 +91,20 @@ class TokenRes:
     status:SuccessResponse
     token:str
 
+
+
+@strawberry.federation.type(keys=["id"])
+class User:
+    id: strawberry.ID
+    email: str
+
+    @staticmethod
+    async def resolve_reference(id: strawberry.ID, info: strawberry.Info) -> "User":
+        db: AsyncSession = info.context["db"]
+        result = await db.execute(
+            select(CustomUser).where(CustomUser.id == int(id))
+        )
+        user = result.scalar_one_or_none()
+        if user:
+            return User(id=user.id, email=user.email)
+        return None

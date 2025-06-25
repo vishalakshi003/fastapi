@@ -6,3 +6,5 @@ from strawberry.fastapi import GraphQLRouter
 app=FastAPI()
 asset=GraphQLRouter(schema,context_getter=get_context)
 app.include_router(asset,prefix='/graphql')
+# with open("schema.graphql", "w") as f:
+#     f.write(schema.as_str())
