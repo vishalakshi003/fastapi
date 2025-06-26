@@ -77,12 +77,22 @@ class Mutations():
 
     @strawberry.mutation
     async def CreateLanguage(self,info:Info,data:Create_Lang)->GetLang:
-        db:AsyncSession=info.context["db"]
-        lang=Language(name=data.name,created_by=str(1))
-        db.add(lang)
-        await db.commit()
-        await db.refresh(lang)
-        return lang
+        try:
+            db:AsyncSession=info.context["db"]
+            user=info.context["user"]
+            if not user:
+                raise GraphQLError('not unthorized')
+            lang=Language(name=data.name,created_by=str(1))
+            db.add(lang)
+            await db.commit()
+            await db.refresh(lang)
+            return lang
+        except GraphQLError as gql_error:
+            #  Preserve the actual GraphQL error
+            raise gql_error  
+        except Exception as e:
+            await db.rollback()
+            raise GraphQLError(f"Something went wrong :{str(e)}")
     @strawberry.mutation
     async def Loginapi(self,info:Info,request:LoginReq)->TokenRes:
         try:

@@ -7,7 +7,7 @@ import strawberry
 from strawberry.scalars import JSON
 from strawberry.federation import type as fed_type
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from src.core.database import async_get_db,AsyncSessionMaker
 from src.models.customuser import CustomUser
 @strawberry.scalar(description="The `JSON` scalar type represents arbitrary JSON values.")
 class JSON:
@@ -28,6 +28,10 @@ class Create_Lang:
 class GetLang:
     id:int
     name:str
+@strawberry.type
+class Asset:
+    id:int
+    name:str
 @strawberry.input
 class Create_user:
     firstname:str
@@ -41,6 +45,11 @@ class Create_user:
     address_info:JSON
     language:Optional[List[str]] = None
     roles: Optional[List[str]] = strawberry.field(default_factory=lambda: ["consumer"])
+
+    @strawberry.field
+    async def asset(self)->Optional[List["Asset"]]:
+        return None
+
 
 @strawberry.type
 class User_details:
@@ -100,11 +109,12 @@ class User:
 
     @staticmethod
     async def resolve_reference(id: strawberry.ID, info: strawberry.Info) -> "User":
-        db: AsyncSession = info.context["db"]
-        result = await db.execute(
-            select(CustomUser).where(CustomUser.id == int(id))
-        )
-        user = result.scalar_one_or_none()
-        if user:
-            return User(id=user.id, email=user.email)
-        return None
+        async with AsyncSessionMaker() as db:
+            # db: AsyncSession = info.context["db"]
+            result = await db.execute(
+                select(CustomUser).where(CustomUser.id == int(id))
+            )
+            user = result.scalar_one_or_none()
+            if user:
+                return User(id=user.id, email=user.email)
+            return None

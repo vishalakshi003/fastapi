@@ -4,3 +4,4 @@ alembic
 sqlalchemy
 psycopg2-binary --only-binary psycopg2-binary
 asyncpg
+PyJWT
