@@ -1,9 +1,9 @@
+temporalio
 strawberry-graphql[fastapi]
 fastapi[all]
 alembic
 sqlalchemy
 psycopg2-binary --only-binary psycopg2-binary
 asyncpg
-PyJWT
-passlib
-temporalio
+gql
+aiohttp

@@ -23,15 +23,20 @@ OuthUserDeps=Annotated[dict,Depends(oauth2_scheme)]
 # async def get_context(db: AsyncSession = Depends(async_get_db)):
 #     return {"db": db}
 
-async def get_context(db: AsyncSession = Depends(async_get_db)):
-    return {"db": db}
+# async def get_context(db: AsyncSession = Depends(async_get_db)):
+#     return {"db": db}
 
-# async def get_context(request:Request,db: AsyncSession = Depends(async_get_db)):
-#     user = None
-#     auth_header = request.headers.get("Authorization")
-#     if auth_header and auth_header.startswith("Bearer "):
-#         token = auth_header.split(" ")[1]
-#         user = jwt_decode_payload(token)
-#         user=user["id"]
 
-#     return {"db": db,"user":user}
+async def get_context(request: Request, db: AsyncSession = Depends(async_get_db)):
+    user = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+        user = jwt_decode_payload(token)
+        user = user["id"]
+
+    return {
+        "db": db,
+        "user": user,
+        "temporal_client": request.app.temporal_client,
+    }

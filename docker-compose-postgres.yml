@@ -1,0 +1,61 @@
+services:
+  temporal_db:
+    image: postgres:13
+    container_name: temporal_db
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_DB: temporal
+    ports:
+      - 5435:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal -d temporal"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - temporal-net
+
+  temporal:
+    image: temporalio/auto-setup:1.23
+    container_name: temporal
+    depends_on:
+      temporal_db:
+        condition: service_healthy
+    environment:
+      DB: postgresql
+      DB_PORT: 5432
+      DB_HOST: temporal_db 
+      POSTGRES_USER: temporal       
+      POSTGRES_PWD: temporal        
+      POSTGRES_DB: temporal
+      POSTGRES_SEEDS: temporal_db   
+    ports:
+      - "7233:7233"                 
+    networks:
+      - temporal-net
+    # healthcheck:
+      # test: ["CMD-SHELL", "curl -f http://localhost:8233/health || exit 1"]
+      # # test: ["CMD", "tctl", "--address", "127.0.0.1:7233", "--ns", "default", "workflow", "list"]
+      # interval: 10s
+      # timeout: 15s
+      # retries: 5
+
+  temporal_web:
+    image: temporalio/web:latest
+    container_name: temporal_web
+    environment:
+      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+      - TEMPORAL_PERMIT_WRITE_API=true
+      - TEMPORAL_WEB_PORT=8080  
+    depends_on:
+      - temporal
+    ports:
+      - "8080:8080"
+    networks:
+      - temporal-net
+
+networks:
+  temporal-net:
+    name: temporal-net
+    driver: bridge

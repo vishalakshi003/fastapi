@@ -5,11 +5,11 @@ class UserBase(BaseModel):
     middlename:Optional[str]=None
     lastname:str
     email:EmailStr
-    mobile_number:str
-    id_proof: Optional[List[Dict[str, Any]]]=None
+    mobileNumber:str
+    idProof: Optional[List[Dict[str, Any]]]=None
     profilephoto: Optional[Dict[str, Any]] = None
     hobbies: Optional[List[str]] = []
-    address_info:Optional[Dict[str, Any]]=None
+    addressInfo:Optional[Dict[str, Any]]=None
     language:Optional[List[str]]=None
 
 class CreateUser(UserBase):

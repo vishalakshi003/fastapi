@@ -1,0 +1,106 @@
+
+services:
+# User Service DB
+  user_db:
+    image: postgres:14
+    container_name: user_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_db
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432" 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    
+    networks:
+      - temporal-net
+  asset_db:
+    image: postgres:14
+    container_name: asset_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: asset_db
+    ports:
+      - "5433:5432" 
+    volumes:
+      - asset_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - temporal-net
+
+  user_services:
+    build:
+      context: ./user_services
+    container_name: user_services
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@user_db:5432/user_db
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://postgres:postgres@user_db:5432/user_db
+    depends_on:
+      user_db:
+        condition: service_healthy
+    networks:
+      - temporal-net
+  asset_service:
+    build:
+      context: ./asset_service
+    container_name: asset_service
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@asset_db:5432/asset_db
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://postgres:postgres@user_db:5432/asset_db
+    depends_on:
+      asset_db:
+        condition: service_healthy
+    networks:
+      - temporal-net
+  # Apollo Federation Gateway
+  apollo_gateway:
+    build:
+      context: ./apollo-federation-gateway-ts
+      dockerfile: Dockerfile
+    container_name: apollo_gateway
+    ports:
+      - "4000:4000"
+    depends_on:
+      - user_services
+      - asset_service
+    networks:
+      - temporal-net
+
+  # Temporal Worker (Python)
+  temporal_worker:
+    build:
+      context: ./temporal
+      dockerfile: Dockerfile.temporal
+    container_name: temporal_worker
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_NAMESPACE=default
+    depends_on:
+      - temporal
+        # condition: service_healthy
+    networks:
+      - temporal-net
+
+volumes:
+  user_db_data:
+  asset_db_data:
+
+networks:
+  temporal-net:
+    driver: bridge
+

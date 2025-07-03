@@ -24,14 +24,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 config = context.config
 
 
-# database_url = os.getenv("DATABASE_URL")
-# if database_url:
+database_url = os.getenv("DATABASE_URL")
+if database_url:
 
-#     # logger.info(f"Alembic using DATABASE_URL from environment: {database_url}")
-#     config.set_main_option("sqlalchemy.url", database_url)
-# else:
-#     print('Alembic using DATABASE_URL from alembic.ini')
-#     # logger.info("Alembic using DATABASE_URL from alembic.ini")
+    # logger.info(f"Alembic using DATABASE_URL from environment: {database_url}")
+    config.set_main_option("sqlalchemy.url", database_url)
+else:
+    print('Alembic using DATABASE_URL from alembic.ini')
+    # logger.info("Alembic using DATABASE_URL from alembic.ini")
 
 
 

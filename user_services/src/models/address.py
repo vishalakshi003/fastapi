@@ -7,5 +7,6 @@ class Address(Base):
     __tablename__ = "address"
     id: Mapped[int] = mapped_column(primary_key=True)
     email_address: Mapped[str]
+    place:Mapped[str]
     user_id: Mapped[int] = mapped_column(ForeignKey("customuser.id"))
     user: Mapped["CustomUser"] = relationship(back_populates="addresses")
