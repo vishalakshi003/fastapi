@@ -61,7 +61,7 @@ services:
       - "8002:8000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@asset_db:5432/asset_db
-      - ASYNC_DATABASE_URL=postgresql+asyncpg://postgres:postgres@user_db:5432/asset_db
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://postgres:postgres@asset_db:5432/asset_db
     depends_on:
       asset_db:
         condition: service_healthy
