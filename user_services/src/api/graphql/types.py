@@ -45,12 +45,17 @@ class Create_user:
     hobbies: Optional[JSON] = None      
     addressInfo: Optional[JSON] = None  
     idProof:Optional[JSON]=None
-    language: Optional[List[str]] = None
     language:Optional[List[str]] = None
     roles: Optional[List[str]] = strawberry.field(default_factory=lambda: ["consumer"])
     
-
-
+@strawberry.input
+class UserProfileInput:
+    user_id: int
+    firstname: str
+    lastname: str
+    profilephoto: Optional[JSON] = None  
+    hobbies: Optional[JSON] = None      
+    addressinfo: Optional[JSON] = None  
 @strawberry.type
 class User_details:
     userId:int
@@ -63,7 +68,7 @@ class User_details:
     hobbies: JSON
     addressInfo:JSON
     language:Optional[List[GetLang]]
-    roles:Optional[str]
+    roles: List[str]
 
 @strawberry.input
 class Create_role:
@@ -79,7 +84,7 @@ class Get_role:
 class ResponseMessage:
     status: str
     message: str
-
+    combined_result: Optional[User_details] = None
 @strawberry.type
 class UserCreateResponse(ResponseMessage):
     userId: str
@@ -124,3 +129,46 @@ class User:
             if user:
                 return User(id=user.id, email=user.email)
             return None
+        
+
+@strawberry.type
+class RoleMappingType:
+    id: int
+    roleId: int
+    userId: int
+
+
+@strawberry.input
+class RoleMappingInput:
+    userId: int
+    rolename: List[str]
+@strawberry.type
+class LangType:
+    id: int
+    lang_id: int
+    user_id: int
+@strawberry.input
+class LangInput:
+    user_id: int
+    language: str
+
+
+@strawberry.type
+class CustomUser_details:
+    userId:int
+    email:str
+    mobileNumber:str
+    idProof:JSON
+    profilephoto:JSON
+    hobbies: JSON
+    
+
+@strawberry.type
+class Userprofile_details:
+    id:int
+    userId:int
+    firstname:str
+    lastname:str
+    profilephoto:JSON
+    hobbies: JSON
+    addressInfo:JSON

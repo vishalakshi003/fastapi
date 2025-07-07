@@ -6,7 +6,7 @@ from temporalio.worker import Worker
 from workflows.user_workflow import UserRegisterWorkflow
 
 from activities.user_activities import (
-    create_user
+    create_user,user_profile,user_maprole
 )
 
 from config.config import config
@@ -25,6 +25,7 @@ async def main():
         ],
         activities=[
             create_user, 
+            user_profile,user_maprole
         ]
     )
 

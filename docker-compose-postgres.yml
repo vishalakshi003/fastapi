@@ -34,26 +34,28 @@ services:
       - "7233:7233"                 
     networks:
       - temporal-net
-    # healthcheck:
-      # test: ["CMD-SHELL", "curl -f http://localhost:8233/health || exit 1"]
-      # # test: ["CMD", "tctl", "--address", "127.0.0.1:7233", "--ns", "default", "workflow", "list"]
-      # interval: 10s
-      # timeout: 15s
-      # retries: 5
+    healthcheck:
+      test: ["CMD", "tctl", "--address","temporal:7233", "--ns", "default", "workflow", "list"]
+      interval: 10s
+      timeout: 15s
+      retries: 5
 
   temporal_web:
-    image: temporalio/web:latest
+    image: temporalio/ui:2.19.0
     container_name: temporal_web
     environment:
-      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
-      - TEMPORAL_PERMIT_WRITE_API=true
-      - TEMPORAL_WEB_PORT=8080  
-    depends_on:
-      - temporal
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_UI_PORT: 8080
+      TEMPORAL_PERMIT_WRITE_API: "true"
+      TEMPORAL_DEFAULT_NAMESPACE: default
+
     ports:
       - "8080:8080"
+    depends_on:
+      - temporal
     networks:
       - temporal-net
+
 
 networks:
   temporal-net:
