@@ -94,6 +94,23 @@ class Mutation:
                 raise GraphQLError(f"Something went wrong :{str(e)}")
             
     @strawberry.mutation
+    async def deleteuser(self,id:int,info:Info)-> Response:
+        db:AsyncSession=info.context["db"]
+        user_results=await db.execute(select(CustomUser).where(CustomUser.id==id))
+        fetch_user=user_results.scalar_one_or_none()
+        if not fetch_user:
+            return Response(success=False, error=f"User with ID {id} not found")
+
+        try:
+            await db.delete(fetch_user)
+            await db.commit()
+
+        except Exception as e:
+            await db.rollback()
+            return Response(success=False, error=str(e))
+    
+    
+    @strawberry.mutation
     async def createuserprofile(self, info: Info, data: UserProfileInput,internal:bool=False) -> Userprofile_details:
         if not internal:
             raise Exception("External calls must go through the workflow.")
@@ -123,7 +140,24 @@ class Mutation:
             except Exception as e:
                 await db.rollback()
                 raise GraphQLError(f"Something went wrong :{str(e)}")
+  
+    @strawberry.mutation
+    async def deleteuserprofile(self,id:int,info:Info)-> Response:
+        db:AsyncSession=info.context["db"]
+        user_results=await db.execute(select(UserPersonalProfile).where(UserPersonalProfile.id==id))
+        fetch_user=user_results.scalar_one_or_none()
+        if not fetch_user:
+            return Response(success=False, error=f"User with ID {id} not found")
 
+        try:
+            await db.delete(fetch_user)
+            await db.commit()
+
+        except Exception as e:
+            await db.rollback()
+            return Response(success=False, error=str(e))
+    
+    
     @strawberry.mutation
     async def maprolestouser(self, info: Info,data:RoleMappingInput,internal:bool=False) -> List[RoleMappingType]:
         if not internal:
@@ -159,7 +193,21 @@ class Mutation:
             except Exception as e:
                 await db.rollback()
                 raise GraphQLError(f"Something went wrong :{str(e)}")
+    @strawberry.mutation
+    async def deleteuserrolemap(self,id:int,info:Info)-> Response:
+        db:AsyncSession=info.context["db"]
+        user_results=await db.execute(select(RoleMapping).where(RoleMapping.id==id))
+        fetch_user=user_results.scalar_one_or_none()
+        if not fetch_user:
+            return Response(success=False, error=f"User with ID {id} not found")
 
+        try:
+            await db.delete(fetch_user)
+            await db.commit()
+
+        except Exception as e:
+            await db.rollback()
+            return Response(success=False, error=str(e))
     @strawberry.mutation
     async def map_languages(self, info: Info,data:LangInput) ->LangType:
         db: AsyncSession = info.context["db"]

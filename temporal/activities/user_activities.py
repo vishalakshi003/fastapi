@@ -38,34 +38,40 @@ async def create_user(user_data: dict) -> dict:
             }
         except TransportQueryError as e:
             raise Exception(f"GraphQL error: {e.errors}")
+@activity.defn
+async def delete_user(id:int)->None:
+    mutation=gql("""
+    mutation deleteuser($id:Int!){
+        deleteuser(id:$id){
+                 success
+                 error
+                 }
+                 }
+""")
+    async with get_gql_client() as client:
+        results=await client.execute(mutation,variable_values={"id": id})
+        data = results["deleteuser"]
 
-    # url = "http://user_services:8000/graphql" 
+        if not data["success"]:
+            if data["error"]:
+                activity.logger.info(f"User {id} already deleted")
 
-    # async with get_gql_client() as client:
-    #     response = await client.post(
-    #         url,
-    #         json={"query": mutation, "variables": {"data": user_data}},
-    #         headers={"Content-Type": "application/json"}
-    #     )
+            else:
+                activity.logger.warning(f"Failed to delete user {id}: {data['error']}")
 
-    #     data = response.json()
-    #     if "errors" in data:
-    #         raise Exception(f"GraphQL error: {data['errors']}")
-
-    #     user_id = data["data"]["createuser"]["userId"]
-    #     return {"userId": user_id}
-
+        # return data["success"]
 
 @activity.defn
 async def user_profile(payload: dict) -> dict:
     mutation =gql( """
     mutation createuserprofile($data: UserProfileInput!) {
         createuserprofile(data: $data,internal: true) {
-          userId
-          firstname
-        }
-      }""")
-          
+                id
+                userId
+                firstname
+                }
+            }""")
+                
 
     async with get_gql_client() as client:
         try:
@@ -73,24 +79,27 @@ async def user_profile(payload: dict) -> dict:
             return result["createuserprofile"]
         except TransportQueryError as e:
             raise Exception(f"GraphQL error: {e.errors}")
-    # url = "http://user_services:8000/graphql"
-    # async with httpx.AsyncClient() as client:
-    #     response = await client.post(
-    #         url,
-    #         json={
-    #             "query": mutation,
-    #             "variables": {
-    #                 "data":payload
-    #             }
-    #         },
-    #         headers={"Content-Type": "application/json"}
-    #     )
+@activity.defn
+async def delete_userprofile(id:int)->None:
+    mutation=gql("""
+    mutation deleteuserprofile($id:Int!){
+        deleteuserprofile(id:$id){
+                 success
+                 error
+                 }
+                 }
+""")
+    async with get_gql_client() as client:
+        results=await client.execute(mutation,variable_values={"id": id})
+        data = results["deleteuserprofile"]
 
-    #     data = response.json()
-    #     if "errors" in data:
-    #         raise Exception(f"GraphQL error: {data['errors']}")
+        if not data["success"]:
+            if data["error"]:
+                activity.logger.info(f"User {id} already deleted")
 
-    #     return data["data"]["createuserprofile"]
+            else:
+                activity.logger.warning(f"Failed to delete user {id}: {data['error']}")
+
 
 @activity.defn
 async def user_maprole(payload: dict) -> List[Dict[str, int]]:
@@ -117,24 +126,23 @@ async def user_maprole(payload: dict) -> List[Dict[str, int]]:
         except TransportQueryError as e:
             raise Exception(f"GraphQL error: {e.errors}")
 
-    # url = "http://user_services:8000/graphql"
-    # async with httpx.AsyncClient() as client:
-    #     response = await client.post(
-    #         url,
-    #         json={
-    #             "query": mutation,
-    #             "variables": {
-    #                 "data": {
-    #                     "userId": payload["userId"],
-    #                     "rolename": payload["rolename"]
-    #                 }
-    #             }
-    #         },
-    #         headers={"Content-Type": "application/json"}
-    #     )
+@activity.defn
+async def delete_userrolemap(id:int)->None:
+    mutation=gql("""
+    mutation deleteuserrolemap($id:Int!){
+        deleteuserrolemap(id:$id){
+                 success
+                 error
+                 }
+                 }
+""")
+    async with get_gql_client() as client:
+        results=await client.execute(mutation,variable_values={"id": id})
+        data = results["deleteuserrolemap"]
 
-    #     data = response.json()
-    #     if "errors" in data:
-    #         raise Exception(f"GraphQL error: {data['errors']}")
-    #     mapping_data=data["data"]["maprolestouser"]
-    #     return mapping_data 
+        if not data["success"]:
+            if data["error"]:
+                activity.logger.info(f"User {id} already deleted")
+            else:
+                activity.logger.warning(f"Failed to delete user {id}: {data['error']}")
+

@@ -172,3 +172,10 @@ class Userprofile_details:
     profilephoto:JSON
     hobbies: JSON
     addressInfo:JSON
+
+
+
+@strawberry.type
+class Response:
+    success:bool
+    error:Optional[str]=None
