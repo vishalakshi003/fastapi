@@ -41,7 +41,9 @@ services:
 
   user_services:
     build:
-      context: ./user_services
+      # context: ./user_services
+      context: .
+      dockerfile: user_services/Dockerfile
     container_name: user_services
     ports:
       - "8001:8000"
@@ -55,7 +57,9 @@ services:
       - temporal-net
   asset_service:
     build:
-      context: ./asset_service
+      # context: ./asset_service
+      context: . 
+      dockerfile: asset_service/Dockerfile
     container_name: asset_service
     ports:
       - "8002:8000"

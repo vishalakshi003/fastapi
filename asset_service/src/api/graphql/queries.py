@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 import strawberry
 from strawberry.types import Info
 from src.api.graphql.types import Create_Asset, GetAsset,User,GetAssetAllocated
@@ -6,11 +7,16 @@ from src.models.asset import AssetAllocated,Assetmaster
 from typing import Optional
 from sqlalchemy import select
 from typing import List
+from shared.core.errors.http_error import HttpError
 @strawberry.type
 class Query:
     @strawberry.field
     async def get_asset(self,info:Info,id:Optional[int]=None)->List[GetAsset]:
         db:AsyncSession=info.context["db"]
+        user=info.context["user"]
+        print(user)
+        if not user:
+            raise HttpError.unauthorized()
         if id:
             results=await db.execute(select(Assetmaster).where(Assetmaster.id==id))
         else:

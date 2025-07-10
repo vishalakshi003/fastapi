@@ -9,7 +9,7 @@ until pg_isready -h user_db -p 5432 -U postgres; do
   sleep 2
 done
 
-alembic upgrade head
+# alembic upgrade head
 # Optional: run some SQL setup (if needed)
 # psql -h user_db -U user_service -d user_service -c "SELECT 1;"
 

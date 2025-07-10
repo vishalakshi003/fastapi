@@ -4,11 +4,15 @@ from src.api.graphql.types import Create_Asset, GetAsset,Create_allocated,GetAss
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.asset import AssetAllocated,Assetmaster
 from src.schema.asset_schema import *
+from shared.core.errors.http_error import HttpError
 @strawberry.type
 class Mutation:
     @strawberry.mutation
     async def create_asset(self,data:Create_Asset,info:Info)->GetAsset:
         db:AsyncSession=info.context["db"]
+        user=info.context["user"]
+        if not user:
+            raise HttpError.unauthorized()
         validated =CreateAsset(**data.__dict__)
         asset=Assetmaster(name=validated.name, created_by=str(1))
         db.add(asset)

@@ -1,0 +1,7 @@
+// this file used for pylance is to understand the shared folder, it will not take for venv,where python interprecter is taken
+
+{
+  "python.analysis.extraPaths": [
+    "./shared"
+  ]
+}

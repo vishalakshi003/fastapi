@@ -4,7 +4,7 @@ from fastapi import Depends, Request
 from typing_extensions import Annotated
 from src.core.database import async_get_db
 # from src.utils import fetch_current_user, jwt_decode_payload,oauth2_scheme
-from shared.jwt_utils import jwt_decode_payload
+from shared.utils.jwt import jwt_decode_payload
 # async def get_context():
 #     db_gen=async_get_db()
 #     db=await db_gen.__anext__()
@@ -17,17 +17,22 @@ from shared.jwt_utils import jwt_decode_payload
 
 async def get_context(request: Request, db: AsyncSession = Depends(async_get_db)):
     user = None
-    auth_header = request.headers.get("Authorization")
-    if auth_header and auth_header.startswith("Bearer "):
+    auth_header = request.headers.get("authorization")
+    print("Authorization header:", auth_header)
+    print('888888888888888888888888')
+    if auth_header:
         token = auth_header.split(" ")[1]
         try:
             decoded = jwt_decode_payload(token)
-            user = decoded.get("sub") or decoded.get("id")
+            print("decoded full payload:", decoded)
+            print('decode------------------',decoded)
+            user = decoded.get("email")
+            print('user----------------',user)
         except Exception as e:
             user = None
-
+    print('usersssss',user)
     return {
         "db": db,
         "user": user,
-        "temporal_client": request.app.temporal_client,
+        # "temporal_client": request.app.temporal_client,
     }

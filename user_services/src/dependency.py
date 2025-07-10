@@ -38,5 +38,5 @@ async def get_context(request: Request, db: AsyncSession = Depends(async_get_db)
     return {
         "db": db,
         "user": user,
-        "temporal_client": request.app.temporal_client,
+        # "temporal_client": request.app.temporal_client,
     }
