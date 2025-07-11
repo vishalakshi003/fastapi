@@ -1,5 +1,5 @@
 from shared.core.errors.graphql_error import GraphQLHttpError
-
+# from shared.core.response import Response
 class HttpError:
     @staticmethod
     def already_exists(details="Data already exists"):
@@ -11,6 +11,12 @@ class HttpError:
 
     @staticmethod
     def unauthorized(details="You are not authenticated to perform this action!"):
+    #     raise GraphQLHttpError(Response(
+    #     status="error",
+    #     message=details,
+    #     status_code=401,
+    #     data=None
+    # ))
         raise GraphQLHttpError(message=details, status_code=401)
 
     @staticmethod

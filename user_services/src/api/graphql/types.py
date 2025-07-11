@@ -9,6 +9,7 @@ from strawberry.federation import type as fed_type
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import async_get_db,AsyncSessionMaker
 from src.models.customuser import CustomUser
+# from shared.core.response import Response
 @strawberry.scalar(description="The `JSON` scalar type represents arbitrary JSON values.")
 class JSON:
     @staticmethod
