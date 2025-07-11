@@ -36,16 +36,13 @@ import {
   RemoteGraphQLDataSource,
 } from '@apollo/gateway';
 
-// Define the Apollo Gateway with header forwarding logic
 const gateway = new ApolloGateway({
   supergraphSdl: new IntrospectAndCompose({
     subgraphs: [
-  { name: 'user_services', url: "http://user_services:8000/graphql" },
-  { name: 'asset_service', url: "http://asset_service:8000/graphql" },
+      { name: 'user_services', url: "http://user_services:8000/graphql" },
+      { name: 'asset_service', url: "http://asset_service:8000/graphql" },
     ],
   }),
-
-  // Forward the `Authorization` header to subgraphs
   buildService({ url }) {
     return new RemoteGraphQLDataSource({
       url,
@@ -59,13 +56,34 @@ const gateway = new ApolloGateway({
   },
 });
 
-// Start the server with context forwarding
 async function startServer() {
   const server = new ApolloServer({
     gateway,
-    // Disable subscriptions (not supported in gateway mode)
-    // if not needed, this line is optional:
-    // subscriptions: false,
+    plugins: [
+      {
+        async requestDidStart() {
+          return {
+            async willSendResponse({ response }) {
+              const body = response.body as any;
+              const errors = body?.singleResult?.errors;
+
+              if (errors?.length) {
+                const statusCode =
+                  errors[0]?.extensions?.status_code ||
+                  errors[0]?.extensions?.status ||
+                  errors[0]?.extensions?.response?.status ||
+                  400;
+
+                if (response.http) {
+                  response.http.status = statusCode;
+                  response.http.headers.set('X-Original-Status', String(statusCode));
+                }
+              }
+            },
+          };
+        },
+      },
+    ],
   });
 
   const { url } = await startStandaloneServer(server, {
@@ -73,7 +91,6 @@ async function startServer() {
     context: async ({ req }) => {
       console.log("HEADERS", req.headers);
       return {
-        // Forward `authorization` header from client (e.g., Apollo Sandbox)
         authorization: req.headers.authorization || '',
       };
     },
@@ -82,6 +99,4 @@ async function startServer() {
   console.log(`🚀 Apollo Gateway running at ${url}`);
 }
 
-startServer().catch((err) => {
-  console.error('🚨 Failed to start Apollo Gateway:', err);
-});
+startServer().catch(console.error);

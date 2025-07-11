@@ -19,18 +19,13 @@ async def get_context(request: Request, db: AsyncSession = Depends(async_get_db)
     user = None
     auth_header = request.headers.get("authorization")
     print("Authorization header:", auth_header)
-    print('888888888888888888888888')
     if auth_header:
         token = auth_header.split(" ")[1]
         try:
             decoded = jwt_decode_payload(token)
-            print("decoded full payload:", decoded)
-            print('decode------------------',decoded)
-            user = decoded.get("email")
-            print('user----------------',user)
+            user = decoded
         except Exception as e:
             user = None
-    print('usersssss',user)
     return {
         "db": db,
         "user": user,

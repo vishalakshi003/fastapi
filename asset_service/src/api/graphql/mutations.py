@@ -14,7 +14,7 @@ class Mutation:
         if not user:
             raise HttpError.unauthorized()
         validated =CreateAsset(**data.__dict__)
-        asset=Assetmaster(name=validated.name, created_by=str(1))
+        asset=Assetmaster(name=validated.name, created_by=str(user["id"]))
         db.add(asset)
         await db.commit()
         await db.refresh(asset)
