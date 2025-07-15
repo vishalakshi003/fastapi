@@ -2,7 +2,7 @@ from graphql import GraphQLError
 import strawberry
 from .types import Get_role,User_details,GetLang
 from typing import Optional
-from ...dependency import SessionDeps
+# from ...dependency import SessionDeps
 from sqlalchemy import select,desc,func
 from sqlalchemy.orm import selectinload
 from ...models.rolemaster import RoleMaster
